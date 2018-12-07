@@ -30,31 +30,13 @@
     <ClCompile Include="read_el.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="likelihood1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="likelihood2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="benchm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modularity1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="modularity2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="likelihood10.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="likelihood20.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="modularity3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="modularity4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="likelihood.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

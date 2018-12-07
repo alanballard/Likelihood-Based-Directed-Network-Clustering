@@ -115,14 +115,8 @@
   <ItemGroup>
     <ClCompile Include="benchm.cpp" />
     <ClCompile Include="initial_pop.cpp" />
-    <ClCompile Include="likelihood1.cpp" />
-    <ClCompile Include="likelihood10.cpp" />
-    <ClCompile Include="likelihood2.cpp" />
-    <ClCompile Include="likelihood20.cpp" />
+    <ClCompile Include="likelihood.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="modularity1.cpp" />
-    <ClCompile Include="modularity2.cpp" />
-    <ClCompile Include="modularity3.cpp" />
     <ClCompile Include="modularity4.cpp" />
     <ClCompile Include="mutate_membership.cpp" />
     <ClCompile Include="print_el.cpp" />

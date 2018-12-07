@@ -31,7 +31,6 @@
  */
 
 
-
 #include "./standard_include.cpp"
 #define unlikely -214741
 
@@ -2146,9 +2145,8 @@ void erase_file_if_exists(string s) {
 		
 		char rmb[120];
 		//sprintf(rmb, "rm %s", b); ALAN
-		sprintf_s(rmb, "rm %s", b); 
-
-		int erase= system(rmb);
+		remove(b); //ALAN
+		//int erase= system(rmb); //ALAN
 	}
 
 

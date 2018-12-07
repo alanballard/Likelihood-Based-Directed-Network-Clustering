@@ -18,13 +18,13 @@ the abbreviated change-in-loglikelihood equation
 #include <fstream>
 #include <sstream>
 #include <stdlib.h>	
-#include <time.h>		//for calculating run-time
-#include <string>		//for outputting file name
+#include <time.h>		
+#include <string>		
 #include <iomanip>
-#include <math.h>       //need for exponent fct.
-#include <algorithm>    //need for mininimum fct.
+#include <math.h>       
+#include <algorithm>   
 #include <vector>
-#include <cctype>		//for yes/no question
+#include <cctype>		
 #include <tuple>
 
 using namespace std;
