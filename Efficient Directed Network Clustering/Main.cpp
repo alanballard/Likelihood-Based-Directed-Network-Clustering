@@ -239,6 +239,17 @@ number_of_LFR_clusters=main_LFR(
 //if (number_of_LFR_clusters > max_cluster_size) { max_cluster_size = number_of_LFR_clusters; }
 //if (number_of_LFR_clusters < min_cluster_size) { min_cluster_size = number_of_LFR_clusters; }
 
+////Get distribution of [# of clusters] across networks generated at current pramaters
+//						ostringstream atkstring;
+//						ofstream atkinfo;
+//						// If old file exists from a previous run, delete it.
+//						//remove("nbr_clusters_distribution.txt");
+//						atkstring << "nbr_clusters_distribution" << ".txt";
+//						atkinfo.open("nbr_clusters_distribution.txt", ios::app);
+//						atkinfo << number_of_LFR_clusters << endl;
+//						atkinfo.close();
+
+
 cout << "Currently evaluating network with parameters: " << num_nodes << "," << average_k << "," << max_degree << "," << tau << "," << tau2 << "," << mixing_parameter << "," << nmin << "," << nmax << endl;
 					ostringstream PARAMETERS_NAME;
 					ofstream NETWORK_PARAMETERS;
@@ -288,9 +299,9 @@ cout << "Currently evaluating network with parameters: " << num_nodes << "," << 
 					int k_int = 1;
 
 					//Run all models on current network
-//cout << "\t" << "Evaluating Model: likelihood" << endl;
+cout << "\t" << "Evaluating Model: likelihood" << endl;
 					likelihood(overall_net_ct, N, links, E, InitTemp, CR, TL, Max_Success, min_k, max_k, k_int); 
-//cout << "\t" << "Evaluating Model: modularity" <<endl;
+cout << "\t" << "Evaluating Model: modularity" <<endl;
 					modularity(overall_net_ct, N, E, links, InitTemp, CR,TL, Max_Success, min_k, max_k, k_int);
 
 	time_t network_end = time(0);
