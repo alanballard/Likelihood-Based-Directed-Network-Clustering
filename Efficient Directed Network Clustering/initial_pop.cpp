@@ -41,6 +41,5 @@ int initial_pop(vector<int>& group_size, vector<int>& cluster_membership, int k,
 			cout << "SEE INITIAL_POP.cpp"; cin.get(); cin.get();
 		}
 	}
-
 	return 0;
 }

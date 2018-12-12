@@ -33,10 +33,10 @@
     <ClCompile Include="benchm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modularity4.cpp">
+    <ClCompile Include="likelihood.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="likelihood.cpp">
+    <ClCompile Include="modularity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

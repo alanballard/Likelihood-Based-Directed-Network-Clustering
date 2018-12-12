@@ -21,7 +21,7 @@ vector<int> mutate_membership(vector<int> current_membership, vector<int> group_
 long double uniform_rand(int seed); //random (0,1) draw
 
 int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> links, int nb_links, double InitTemp, double CR, int TL, int Max_Success, int min_k, int max_k, int k_int);
-int modularity4(int N, vector< vector< tuple<int, int, char> >> links, double InitTemp, double CR, int TL, int Max_Success);
+int modularity(int network_key, int N, int nb_links, vector< vector< tuple<int, int, char> >> links, double InitTemp, double CR, int TL, int Max_Success, int min_k, int max_k, int k_int);
 
 //Code for generating directed LFR benchmark networks
 int main_LFR(
@@ -202,11 +202,14 @@ double overall_time = 0;
 //Generate network at current (fixed) settings
 int num_nodes = 100; //# of nodes in network
 int max_degree = 10;//20 //maximum in-degree
-int nmin = 5;	//means a maximum of 100/20=5 clusters //minimum for the community sizes
-int nmax = 20;	//means a minimum of 100/25=4 clusters //maximum for the community sizes
+int nmin = 2;	//minimum for the community sizes
+int nmax = 20;	//maximum for the community sizes
 //NOTE!!!!: average_k, tau, tau2, mixing_paramter and network_ct parameters are set in the FOR loops below
 
-/*for(double average_k=5; average_k<=10; average_k=average_k+2.5)//average in-degree
+//int min_cluster_size = num_nodes;
+//int max_cluster_size = 0;
+
+for(double average_k=5; average_k<=10; average_k=average_k+2.5)//average in-degree
 {
 	for(double tau=2; tau<=3; tau=tau+1)//minus exponent for the degree sequence
 	{
@@ -214,24 +217,15 @@ int nmax = 20;	//means a minimum of 100/25=4 clusters //maximum for the communit
 		{
 			for(double mixing_parameter=0.1; mixing_parameter<=0.6; mixing_parameter=mixing_parameter+0.05)//{0.10,0.15,0.20,0.25...,0.55,0.60} //mixing parameter
 			{
-				for (int network_ct = 1; network_ct <= 100; network_ct++) //Number of networks to create at current parameter settings
-				{	*/
+				for (int network_ct = 1; network_ct <= 10; network_ct++) //Number of networks to create at current parameter settings
+				{	
 
-					for (double average_k = 5; average_k <= 5; average_k = average_k + 2.5)//average in-degree
-					{
-						for (double tau = 2; tau <= 2; tau = tau + 1)//minus exponent for the degree sequence
-						{
-							for (double tau2 = 1; tau2 <= 1; tau2 = tau2 + 1)//minus exponent for the community size distribution
-							{
-								for (double mixing_parameter = 0.1; mixing_parameter <= 0.1; mixing_parameter = mixing_parameter + 0.05)//{0.10,0.15,0.20,0.25...,0.55,0.60} //mixing parameter
-								{
-									for (int network_ct = 1; network_ct <= 2; network_ct++) //Number of networks to create at current parameter settings
-									{
 overall_net_ct = overall_net_ct + 1;
 time_t network_start = time(0);
 
 cout<<"Generating current network, #"<< overall_net_ct <<endl;
-					main_LFR(
+int number_of_LFR_clusters = 0;
+number_of_LFR_clusters=main_LFR(
 						num_nodes,
 						average_k,
 						max_degree,
@@ -242,6 +236,8 @@ cout<<"Generating current network, #"<< overall_net_ct <<endl;
 						nmin,
 						nmax
 						);
+//if (number_of_LFR_clusters > max_cluster_size) { max_cluster_size = number_of_LFR_clusters; }
+//if (number_of_LFR_clusters < min_cluster_size) { min_cluster_size = number_of_LFR_clusters; }
 
 cout << "Currently evaluating network with parameters: " << num_nodes << "," << average_k << "," << max_degree << "," << tau << "," << tau2 << "," << mixing_parameter << "," << nmin << "," << nmax << endl;
 					ostringstream PARAMETERS_NAME;
@@ -278,34 +274,24 @@ cout << "Currently evaluating network with parameters: " << num_nodes << "," << 
 
 //Simulated Annealing Algorithm Parameters
 					double InitTemp = 1;	//Starting temperature
-					double CR = 0.99;		//Rate at which temperature is reduced
+					double CR = 0.9;		//Rate at which temperature is reduced
 
 					int TL = 100;			//Maximum number of reclustering attempts at a given temperature
-					int Max_Success = 100;	//Maximum number of successes allowed at a given temperature 
+					int Max_Success = TL;	//Maximum number of successes allowed at a given temperature 
 					//The parameters below are hard-coded in the model programs
 					//double LimitIT = ; //Minimum temperature. Program stops when this number is reached
 					//long double epsilon =; //Minimum change in loglikelihood required to accept proposed membership mutation
 
-//for k=10 to k=20
-//note at CR=0.99, TL=300, MX=100, evaluating 4 algos on 1 network took 24 minutes. 24*132 settings*100 reps= 316800 min/60 min= 5280 hrs/24 hrs = 220 days...impossible
-//at CR=0.9, TL=300, MX=100, evaluating 4 algos on 1 network took 3 minutes=660 hrs=27.5 days
-//note at CR=0.99, TL=100, MX=100, evaluating 4 algos on 1 network took 8.4 min=110880 min=1,848 hrs=77 days
-	//2 also would then take 38.5 days. reducing TL=50 should(?) reduce it to around 20 days.
-	//Also reducing the number of networks per setting to 50 should then be around 10 days.
-//note at CR=0.99, TL=10, MX=100, evaluating 4 algos on 1 network took 1 min=13200 min=220hr=9.1 days
-	//2 algos would then take 4.55 days. Reducing the number of networks per setting to 50 should then be about 2.75 days.
-//note at CR=0.9, TL=100, MX=100, evaluating 4 algos on 1 network took .8 min=10560 min=176 hrs=7.3 days
-//note at CR=0.9, TL=10, MX=100, evaluating 4 algos on 1 network took .13 min. =1716 min = 28.6 hrs <2 days
-
+					//number_of_LFR_clusters
 					int min_k = 10;
-					int max_k = 10;
+					int max_k = 20;
 					int k_int = 1;
 
 					//Run all models on current network
-cout << "\t" << "Evaluating Model: likelihood" << endl;
+//cout << "\t" << "Evaluating Model: likelihood" << endl;
 					likelihood(overall_net_ct, N, links, E, InitTemp, CR, TL, Max_Success, min_k, max_k, k_int); 
 //cout << "\t" << "Evaluating Model: modularity" <<endl;
-//					modularity4(N, links, InitTemp, CR, TL, Max_Success); 
+					modularity(overall_net_ct, N, E, links, InitTemp, CR,TL, Max_Success, min_k, max_k, k_int);
 
 	time_t network_end = time(0);
 	double network_time = difftime(network_end, network_start);
@@ -319,7 +305,8 @@ cout << "\t" << "Evaluating Model: likelihood" << endl;
 }
 
 /**********************************/
-
+//cout << "min_cluster_size=" << min_cluster_size << endl;
+//cout << "max_cluster_size=" << max_cluster_size << endl;
 /*
 	//Simulated Annealing Algorithm Parameters
 	double InitTemp = 1;	//Starting temperature

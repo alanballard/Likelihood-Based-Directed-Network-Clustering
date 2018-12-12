@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -86,7 +85,6 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 	//Repeat Simulated Annealing process for each k in the range of specified cluster numbers
 	for (int k = min_k; k <= max_k; k = k + k_int)
 	{
-		//cout << "EFFICIENT LIKELIHOOD METHOD, k=" << k << endl;
 
 		clock_t start_new = clock(); //Time until solution
 
@@ -107,21 +105,22 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 
 		//Total weights and group counts used to develop parameters for proposed clustering
 //In paper proofs,  Z_(to/from *) is relative to vertices of cluster *.
-//Total weight of links from vertex l* to vertices of cluster * (These are the Z_(to *) variables in the paper)
+//Total weight of links from vertex l* to vertices of cluster * (These are the Z_(to *) variables in the paper). Z_to[0], for example, is the total weight of links from vertex l* to vertices of cluster 1.
 		vector<int> Z_to(k);
-//Total weight of links from vertices of cluster * to vertex l* (These are the Z_(from *) variables in the paper)
+//Total weight of links from vertices of cluster * to vertex l* (These are the Z_(from *) variables in the paper). Z_from[0], for example, is the total weight of links from vertices of cluster 1 to vertex l*.
 		vector<int> Z_from(k);
 
 		//Total weights and group counts used to develop parameters for proposed clustering
-		//int Z_l;
-		//int Z_j;
-		//int n_l;
-		//int n_j;
+		int Z_to_l;		//Sum of edge weights from vertex l* to cluster l
+		int Z_from_l;	//Sum of edge weights from cluster l to vertex l*
+		int Z_to_j;		//Sum of edge weights from vertex l* to cluster j
+		int Z_from_j;	//Sum of edge weights from cluster j to vertex l*
 
 		//Observed edge weights and possible edge counts used to develop parameters for proposed clustering.
 		unsigned long long int OBS_l_1;
 		unsigned long long int OBS_j_1;
 		unsigned long long int OBS_bw_1;
+
 		unsigned long long int POS_l_1;
 		unsigned long long int POS_j_1;
 		unsigned long long int POS_bw_1;
@@ -151,11 +150,8 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 		long double j_density_1;
 		long double bw_density_1;
 
-		//Values used to calculate modularity
-		//long double e_mm = 0; // the total fraction of edges between vertices within the same clusters
-		//vector<long double> a_m(k, 0); //the squared fraction of edges between vertices of differing clusters, by cluster
-		//long double a_mm = 0; //the total squared fraction of edges between vertices of differing clusters
-		long double current_full_modularity = 0; //modularity of solution membership assignment
+		//Modularity of solution membership assignment
+		long double current_full_modularity = 0; 
 
 		//Flag to allow creation of initial clustering that will be mutated on later runs.
 		int first_run = 1;
@@ -186,8 +182,8 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 			while (first_run == 1)
 			{
 				//Step: Make initial membership
-								//Populate cluster assignment and size vectors
-				initial_pop(group_size, cluster_membership, k, N/*, engine*/);//assigns initial cluster assignments to z, and counts cluster sizes
+				//Populate cluster assignment and size vectors
+				initial_pop(group_size, cluster_membership, k, N); //assigns initial cluster assignments to z, and counts cluster sizes
 				first_run = 0;
 
 				//Step: Populate OBS and POS vectors based on this membership
@@ -195,54 +191,48 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 				for (int i = 0; i < links.size(); i++)
 				{
 					for (int j = 0; j < links[i].size(); j++)
-					{
-						if (get<2>(links[i][j]) == 'T')//edge is FROM src vert links[i] TO dest vert links[i][j]...
+					{	
+						//Each edge is represented both ways in the adjacency list used in this program. Example, consider the edge from vertex i TO vertex j:
+						//In vertex i's row, links[i][j]) == 'T' but in vertex j's row: links[j][i]) == 'F'.
+						//Thus the same edge is represented twice. I'm limiting to 'T' (rather than 'F') to avoid double counting of edges
+						if (get<2>(links[i][j]) == 'T') //edge is FROM src vert links[i] TO dest vert links[i][j]...
 						{
-							if (cluster_membership[i] == cluster_membership[get<0>(links[i][j])])//src/dest verts belong to same cluster
+							//If the src and destination vertices belong to the same cluster
+							if (cluster_membership[i] == cluster_membership[get<0>(links[i][j])])
 							{
-								//OBS[cluster_membership[i] - 1][cluster_membership[i] - 1]
-								//	= OBS[cluster_membership[i] - 1][cluster_membership[i] - 1]
-								//	+ get<1>(links[i][j]);
 								OBS[cluster_membership[i] - 1] = OBS[cluster_membership[i] - 1] + get<1>(links[i][j]);
 							}
-							else//src/dest clusters differ
+							//Otherwise they are in different clusters
+							else
 							{
-								//OBS[cluster_membership[i] - 1][cluster_membership[get<0>(links[i][j])] - 1]
-								//	= OBS[cluster_membership[i] - 1][cluster_membership[get<0>(links[i][j])] - 1]
-								//	+ get<1>(links[i][j]);
 								OBS[k] = OBS[k] + get<1>(links[i][j]);
 							}
 						}
-						//Note that ever edge is represented twice in the adjacency lists used for this program.
-						//One entry is TO ('T') vertex j from vertex i, and one entry is FROM ('F') vertex i to vertex j.
-						//It would double count each edge if we considered both of these entries, so we're only counting the ones
-						//marked with 'T' above.
 					}
 				}
 
-//May need to cut this in 1/2, like undirected case:
+//Don't need to divide by 2 in the directed case as the way data is read into OBS is different than the undirected case
 				//Note: Since the adjacency list contains 2 entries for every edge and the number of observed edges are counted
 				//over the adjacency list, the total observed count needs to be divided by 2.
-				for (int i = 0; i < k + 1; i++) { OBS[i] = OBS[i] / 2; }
+				//for (int i = 0; i < k + 1; i++) { OBS[i] = OBS[i] / 2; }
 
 				//Populate possible edge count vector. This is done using the cluster size information
 				for (int i = 0; i < k; i++)
 				{
-					//POS[i][i] = ((unsigned long long int) group_size[i] * (group_size[i] - 1)); //2*[nchoose2]=2*[N(N-1)/2]=N*N-1
-					POS[i] = ((unsigned long long int) group_size[i] * (group_size[i] - 1)); //2*[nchoose2]=2*[N(N-1)/2]=N*N-1
+					POS[i] = ((unsigned long long int)group_size[i] * (group_size[i] - 1)); //2*[nchoose2]=2*[N(N-1)/2]=N*N-1
 				}
 				for (int i = 0; i < k - 1; i++)
 				{
 					for (int j = i + 1; j < k; j++)
 					{
-						//add number of edges possible between cluster i and cluster j. This is only run once, on the first run.
-						//Since each i/j combination is only considered once, can't we just shorten this to?:
-						//POS[i][j] = (unsigned long long int) group_size[i] * group_size[j]; //But keeping it as-is shouldn't hurt anything either...
-						//POS[i][j] = POS[i][j] + (unsigned long long int) group_size[i] * group_size[j];
-						//POS[j][i] = POS[i][j];
-						POS[k] = POS[k] + (unsigned long long int) group_size[i] * group_size[j];
+						//add number of edges possible between cluster i and cluster j (in both directions). This is only run once, on the first run.
+						POS[k] = POS[k]
+							//Adding (possible # of edges from cluster i to cluster j) AND (possible # of edges from cluster j to cluster i), which are equal values
+							+ 2*((unsigned long long int)group_size[i] * group_size[j])							
+							;
 					}
 				}
+
 			}//end 1st-run WHILE loop
 
 			//Enter SA Algorithm
@@ -290,14 +280,14 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 //Step: Calculate abbreviated loglikelihood of the proposed membership (Binomial)	
 			//Get numerator of change-in-loglik equation [l,j,bw for proposed clustering]
 			 //Zero out Z (to/from cluster size) vectors. Best practice for runs > 1			
-			for (int i = 0; i < Z_to.size(); i++) { Z_to[i] = 0; }//Total weight of links to l*, by cluster (These are the Z_(to s) values in the paper)			
-			for (int i = 0; i < Z_from.size(); i++) { Z_from[i] = 0; }//Total weight of links from l*, by cluster (These are the Z_(from s) values in the paper)
+			for (int i = 0; i < Z_to.size(); i++) { Z_to[i] = 0; } //Total weight of links to l*, by cluster (These are the Z_(to s) values in the paper)			
+			for (int i = 0; i < Z_from.size(); i++) { Z_from[i] = 0; } //Total weight of links from l*, by cluster (These are the Z_(from s) values in the paper)
 
 			//Populate to/from cluster size vectors
 			//Looking at l*'s neighbors in the adjacency list
 			for (int j = 0; j < links[l_star].size(); j++)
 			{
-				//get<0>(links) -Destination vertex
+				//get<0>(links) -Destination vertex number
 				//get<1>(links) -Weight
 				//get<2>(links) -char in {T,F}
 				if (get<2>(links[l_star][j]) == 'T')//edge extends FROM vertex l* TO the jth vertex in l*'s adjacency list row
@@ -309,36 +299,33 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 					Z_from[cluster_membership[get<0>(links[l_star][j])] - 1] = Z_from[cluster_membership[get<0>(links[l_star][j])] - 1] + get<1>(links[l_star][j]);
 				}
 			}
-			/*
+/*
 				std::cout << "Cluster memberships:" << endl;
 				for (int i = 0; i < cluster_membership.size(); i++){ std::cout << cluster_membership[i] << "   "; } std::cout << endl;
 
 				for (int i = 1; i <= k; i++){
-				std::cout << endl << "The number of edges from vertex " << vert << " to cluster " << i << " is " << Z_to[i - 1] << endl;}
+				std::cout << endl << "The number of edges from vertex " << l_star << " to cluster " << i << " is " << Z_to[i - 1] << endl;}
 				for (int i = 1; i <= k; i++){
-				std::cout << endl << "The number of edges from cluster " << i << " to vertex " << vert << " is " << Z_from[i - 1] << endl;}
+				std::cout << endl << "The number of edges from cluster " << i << " to vertex " << l_star << " is " << Z_from[i - 1] << endl;}
 
 				std::cout << endl << "Z_to():" << endl;
 				for (int i = 0; i < Z_to.size(); i++){std::cout << "<" << i + 1 << ", " << Z_to[i] << "> ";}
 
 				std::cout << endl << "Z_from():" << endl;
 				for (int i = 0; i < Z_from.size(); i++){std::cout << "<" << i + 1 << ", " << Z_from[i] << "> ";}
-			*/
-
-
-			//OBS[clust_l - 1][clust_l - 1] - Z_to[clust_l - 1] - Z_from[clust_l - 1];
-			//OBS[clust_j - 1][clust_j - 1] + Z_to[clust_j - 1] + Z_from[clust_j - 1];
+*/		
 
 			//Calculate parameters for proposed clustering
-			//Z_l = Z[clust_l - 1];
-			//Z_j = Z[clust_j - 1];
-			//n_l = group_size[clust_l - 1];
-			//n_j = group_size[clust_j - 1];
+			//Z_to/from_l/j from paper
+			Z_to_l		= Z_to[clust_l - 1]; //Sum of edge weights from vertex l* to cluster l
+			Z_from_l	= Z_from[clust_l - 1]; //Sum of edge weights from cluster l to vertex l*
+			Z_to_j		= Z_to[clust_j - 1]; //Sum of edge weights from vertex l* to cluster j
+			Z_from_j	= Z_from[clust_j - 1]; //Sum of edge weights from cluster j to vertex l*
 
 			//Equations for updating OBS and POS given a reclustering, taken from paper
-			OBS_l_1 = OBS[clust_l - 1] - Z_to[clust_l - 1] - Z_from[clust_l - 1]; 
-			OBS_j_1 = OBS[clust_j - 1] + Z_to[clust_j - 1] + Z_from[clust_j - 1]; 
-			OBS_bw_1 = OBS[k] - Z_to[clust_j - 1] - Z_from[clust_j - 1] + Z_to[clust_l - 1] + Z_from[clust_l - 1];
+			OBS_l_1		= OBS[clust_l - 1] - Z_to_l - Z_from_l;
+			OBS_j_1		= OBS[clust_j - 1] + Z_to_j + Z_from_j;
+			OBS_bw_1	= OBS[k] - Z_to_j  - Z_from_j + Z_to_l + Z_from_l;
 
 			POS_l_1 = ((group_size[clust_l - 1] - 1)*(group_size[clust_l - 1] - 2)) ;
 			POS_j_1 = ((group_size[clust_j - 1] + 1)*group_size[clust_j - 1]) ;
@@ -368,6 +355,30 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 				bw_density_1 = (OBS_bw_1)*log(param_bw_1) + (POS_bw_1 - OBS_bw_1)*log(1 - param_bw_1);
 			}
 			l_1 = l_density_1 + j_density_1 + bw_density_1;
+			
+/*for (int i = 0; i < k + 1; i++) { cout << OBS[i] << "..."; }cout << endl;
+for (int i = 0; i < k + 1; i++) { cout << POS[i] << "..."; }cout << endl;
+cout << param_l_0 << "***" << param_j_0 << "***" << param_bw_0 << endl;
+for (int i = 0; i < k; i++) { cout<< group_size[i] << "^^^"; }cout << endl;
+cout << "from clust " << clust_l << " to clust " << clust_j << endl;
+cout << "*********************" << endl;
+{
+	int i = l_star;
+	cout << "Vertex " << i << ":";
+	for (unsigned int j = 0; j < links[i].size(); j++) {
+		cout << " " << get<0>(links[i][j]) << " <" << get<1>(links[i][j]) << ", " << get<2>(links[i][j]) << ">";
+		//cout << " " <<  links[i][j].first << " <"<< links[i][j].second <<">";
+	}
+	cout << endl;
+}
+cout << "*********************" << endl;
+cout << OBS_l_1 << "..." << OBS_j_1 << "..." << OBS_bw_1 << endl;
+cout << POS_l_1 << "..." << POS_j_1 << "..." << POS_bw_1 << endl;
+cout << param_l_1 << "***" << param_l_1 << "***" << param_bw_1 << endl;
+cout << "##################################################" << endl;
+cin.get();*/
+//for (int i = 0; i < k + 1; i++) { cout << OBS[i]/ (long double)POS[i] << "..."; }cout << endl;
+
 
 //Step: Calculate change in log-likelihood (Binomial) due to reclustering
 			//log(new/old)=log(new)-log(old)
@@ -375,8 +386,9 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 			//If all densities in either the new or the old likelihood were discarded (and thus set to zero),
 			//it is not possible to evaluate a change-in-likelihood
 			//set entire change-in-likelihood to zero so a new clustering will be considered
-			if (l_0 == 0 || l_1 == 0) { delta_l = 0; }
-			else { delta_l = l_1 - l_0; }
+			//if (l_0 == 0 || l_1 == 0) { delta_l = 0; }
+			//else { delta_l = l_1 - l_0; }
+			delta_l = l_1 - l_0;
 			//if delta_l>0, then l_1>l_0, and the reclustered membership is more "likely"
 			//Otherwise, l_1<l_0 and the current membership is more "likely"
 
@@ -459,6 +471,31 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 			//At this point, the proposed clustering has:
 			//1. Been Accepted. membership vector/OBS/POS/cluster counts have beeen updated to reflect new clustering
 			//2. Rejected. memberhsip vector/OBS/POS/cluster counts still correspond to the current clustering.
+
+
+/*			double l_0_w = 0; //loglikelihood of within-clusters
+			double l_0_b = 0; //loglikelihood of between-clusters
+			//Get loglikelihood of within-cluster edges
+			for (int i = 0; i < k; i++) {
+				if (OBS[i] != 0 && (OBS[i] != POS[i])) {
+					l_0_w = l_0_w +
+						(
+						(OBS[i])*log(OBS[i] / (long double)POS[i]) + (POS[i] - OBS[i])*log(1 - OBS[i] / (long double)POS[i])
+							);
+				}
+			}
+
+			//Get loglikelihood of between-cluster edges
+			unsigned long long int TOT_OBS = 0;
+			unsigned long long int TOT_POS = 0;
+			TOT_OBS = OBS[k];
+			TOT_POS = POS[k];
+
+			//Loglikelihood of between cluster edges when modeled with a single parameter
+			l_0_b = (TOT_OBS)*log(TOT_OBS / (long double)TOT_POS) + ((long double)TOT_POS - TOT_OBS)*log(1 - (TOT_OBS / (long double)TOT_POS));
+			cout << "likelihood is: " << l_0_w + l_0_b << endl;
+*/
+
 		}//End SA LOOP
 
 //CALCULATE TIME REQUIRED TO REACH SOLUTION
@@ -481,8 +518,8 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 			if (OBS[i] != 0 && (OBS[i] != POS[i])) {
 				l_0_w = l_0_w +
 					(
-					(OBS[i])*log(OBS[i] / (long double)POS[i]) + (POS[i] - OBS[i])*log(1 - OBS[i] / (long double)POS[i])
-						);
+						(OBS[i])*log(OBS[i] / (long double)POS[i]) + (POS[i] - OBS[i])*log(1 - OBS[i] / (long double)POS[i])
+					);
 			}
 		}
 
@@ -503,7 +540,7 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 		{
 			LO_OBS = LO_OBS + OBS[i];
 		}
-		LO_POS = N * (N - 1) / 2; //N choose 2
+		LO_POS = N * (N - 1) ; //2*(N choose 2)
 		LO = (LO_OBS)*log(LO_OBS / (long double)LO_POS) + (LO_POS - LO_OBS)*log(1 - (LO_OBS / (long double)LO_POS));
 
 //Step: Calculate DIRECTED modularity of solution membership 
@@ -515,15 +552,6 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 				//k_j^out	=out degree of vertex j			=k_j_out[j]
 				//m			=# of edges in network			=E
 		//Get number of distinct edges in the network
-		/*int E = 0; //Number of edges (in and out) in network
-		for (int i = 0; i < links.size(); i++)
-		{
-			for (int j = 0; j < links[i].size(); j++) {
-				if (get<2>(links[i][j]) == 'T') {
-					E++;
-				}
-			}
-		}*/
 		int E = nb_links;
 
 		vector<long double> k_i_in(N, 0); //vertex i's in-degree
@@ -594,7 +622,7 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 			final_TIME = time;
 		}
 
-		//STEP: Output solution clustering statistics at each value of k		
+//STEP: Output solution clustering statistics at each value of k		
 		ostringstream atkstring;
 		ofstream atkinfo;
 		// If old file exists from a previous run, delete it.
@@ -627,7 +655,7 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 	bestzstorage.open("solution_likelihood.txt", ios::app);
 	for (int i = 0; i < N; i++) {
 		bestzstorage << final_membership[i];
-		if (i < N - 1) { bestzstorage << ","; }
+		if (i < N - 1) { bestzstorage << ", "; }
 	}
 	bestzstorage << endl;
 	bestzstorage.close();

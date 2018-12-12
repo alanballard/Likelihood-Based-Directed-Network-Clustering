@@ -117,7 +117,7 @@
     <ClCompile Include="initial_pop.cpp" />
     <ClCompile Include="likelihood.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="modularity4.cpp" />
+    <ClCompile Include="modularity.cpp" />
     <ClCompile Include="mutate_membership.cpp" />
     <ClCompile Include="print_el.cpp" />
     <ClCompile Include="read_el.cpp" />

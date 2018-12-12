@@ -1920,7 +1920,8 @@ int print_network(deque<set<int> > & Ein, deque<set<int> > & Eout, const deque<d
 	}
 	
 
-	
+	int max_comm_nbr = 0;
+
 	ofstream out2("LFR_community.dat");
 	for (int i=0; i<member_list.size(); i++) {
 		
@@ -1934,12 +1935,15 @@ out2 << i+1  << "\t";
 			//	out2 << "," <<" ";//ALAN
 			//}//ALAN
 //out2 << member_list[i][j] + 1 ;
-			
+
+			//below, Alan
+			if (member_list[i][j] + 1 > max_comm_nbr) {	max_comm_nbr = member_list[i][j] + 1;}
 }
 //		out2<<endl;  ALAN
 out2 << endl;
 	}
 	//	out2 << endl;//ALAN
+
 
 //Solutions file for big batch run. Each network's solution will be comma-seperated, on a seperate line
 	std::ofstream ofs;
@@ -2009,7 +2013,7 @@ out2 << endl;
 
 	//ALAN	cout<<endl<<endl;
 
-	return 0;
+	return max_comm_nbr; //ALAN
 
 }
 
@@ -2122,13 +2126,14 @@ int benchmark(bool excess, bool defect, int num_nodes, double  average_k, int  m
 	
 	
 //ALAN	cout<<"recording network..."<<endl;	
-	print_network(Ein, Eout, member_list, member_matrix, num_seq);
+	int number_of_clusters = 0;
+	number_of_clusters=print_network(Ein, Eout, member_list, member_matrix, num_seq);
 
 	//printmcs(Ein, Eout);
 	//printmcs(Eout, Ein);
 	
 		
-	return 0;
+	return number_of_clusters;//ALAN
 	
 }
 
@@ -2198,10 +2203,13 @@ int nmax//maxc	maximum for the community sizes
 	erase_file_if_exists("LFR_network.dat");
 	erase_file_if_exists("LFR_community.dat");
 	erase_file_if_exists("LFR_statistics.dat");	
-//	benchmark(p.excess, p.defect, p.num_nodes, p.average_k, p.max_degree, p.tau, p.tau2, p.mixing_parameter, p.overlapping_nodes, p.overlap_membership, p.nmin, p.nmax, p.fixed_range);	
-	benchmark(excess, defect, num_nodes, average_k, max_degree, tau, tau2, mixing_parameter, overlapping_nodes, overlap_membership, nmin, nmax, fixed_range);
 
-	return 0;
+	int number_of_clusters = 0;
+
+//	benchmark(p.excess, p.defect, p.num_nodes, p.average_k, p.max_degree, p.tau, p.tau2, p.mixing_parameter, p.overlapping_nodes, p.overlap_membership, p.nmin, p.nmax, p.fixed_range);	
+	number_of_clusters=benchmark(excess, defect, num_nodes, average_k, max_degree, tau, tau2, mixing_parameter, overlapping_nodes, overlap_membership, nmin, nmax, fixed_range);
+
+	return number_of_clusters; //ALAN
 	
 }
 
