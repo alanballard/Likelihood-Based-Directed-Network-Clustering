@@ -130,7 +130,7 @@ int main()
 						std::cout << read_time << " seconds required to read edge list" << endl; //divide by 60 to get minutes
 
 						int min_k = 0; int max_k = 0; int k_int = 0;
-						std::cout << "Enter the minimum number of clusters in which to cluster your network (should be >2):" << endl;
+						std::cout << "Enter the minimum number of clusters in which to cluster your network (should be >=2):" << endl;
 						std::cin >> min_k;
 						cout << endl;
 						std::cout << "Enter the maximum number of clusters in which to cluster your network (should be <<<N):" << endl;

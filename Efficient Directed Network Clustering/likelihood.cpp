@@ -85,7 +85,7 @@ int likelihood(int network_key, int N, vector< vector< tuple<int, int, char> >> 
 	//Repeat Simulated Annealing process for each k in the range of specified cluster numbers
 	for (int k = min_k; k <= max_k; k = k + k_int)
 	{
-
+cout<<"k="<<k<<endl;
 		clock_t start_new = clock(); //Time until solution
 
 //Step: Initialize k+1 current/proposed OBS and POS vectors, and current/proposed membership vector

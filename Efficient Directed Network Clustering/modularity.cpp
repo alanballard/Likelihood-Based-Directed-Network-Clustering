@@ -65,6 +65,8 @@ int modularity(int network_key, int N, int nb_links, vector< vector< tuple<int, 
 	//Repeat Simulated Annealing process for each k in the range of specified cluster numbers
 	for (int k = min_k; k <= max_k; k = k + k_int)
 	{
+cout << "k=" <<k<< endl;
+
 		clock_t start_new = clock(); //Time until solution
 
 		long double current_full_modularity = 0;//modularity for current solution
