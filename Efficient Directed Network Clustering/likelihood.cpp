@@ -521,6 +521,7 @@ cin.get();*/
 						(OBS[i])*log(OBS[i] / (long double)POS[i]) + (POS[i] - OBS[i])*log(1 - OBS[i] / (long double)POS[i])
 					);
 			}
+
 		}
 
 		//Get loglikelihood of between-cluster edges
@@ -531,6 +532,66 @@ cin.get();*/
 
 		//Loglikelihood of between cluster edges when modeled with a single parameter
 		l_0_b = (TOT_OBS)*log(TOT_OBS / (long double)TOT_POS) + ((long double)TOT_POS - TOT_OBS)*log(1 - (TOT_OBS / (long double)TOT_POS));
+
+//NOTE: Parameter for k^th cluster is OBS[k]/(long double)POS[k]. 
+//			Density is ((OBS[k]/(long double)POS[k])^(OBS[k]))*((1-(OBS[k]/(long double)POS[k]))^(POS[k]-OBS[k])). 
+//			Log density is: (OBS[i])*log(OBS[i] / (long double)POS[i]) + (POS[i] - OBS[i])*log(1 - OBS[i] / (long double)POS[i])
+//NOTE: Parameter for bw-cluster is TOT_OBS/(long double)TOT_POS. 
+//			Density is:  ((TOT_OBS / (long double)TOT_POS)^(TOT_OBS))*((1 - (TOT_OBS / (long double)TOT_POS))^(TOT_POS - TOT_OBS))
+//			Log density is: (TOT_OBS)*log(TOT_OBS / (long double)TOT_POS) + ((long double)TOT_POS - TOT_OBS)*log(1 - (TOT_OBS / (long double)TOT_POS))
+
+		/////////////////////////////////////
+		//OUTPUT PARAMETERS
+			ostringstream atkstring3;
+			ofstream atkinfo3;
+			// If old file exists from a previous run, delete it.
+			//remove("likelihood_all_params.txt");
+			atkstring3 << "likelihood_all_params" << ".txt";
+			atkinfo3.open("likelihood_all_params.txt", ios::app);
+			atkinfo3 << network_key << ", " << k << ", ";
+				atkinfo3 << (TOT_OBS / (long double)TOT_POS);
+				for (int i = 0; i < k; i++) 
+				{
+					atkinfo3 <<  "," << OBS[i] / (long double)POS[i];
+				}
+				atkinfo3 << endl;
+			atkinfo3.close();
+
+			/////////////////////////////////////
+			//OUTPUT DENSITIES
+			ostringstream atkstring4;
+			ofstream atkinfo4;
+			// If old file exists from a previous run, delete it.
+			//remove("likelihood_all_dens.txt");
+			atkstring4 << "likelihood_all_dens" << ".txt";
+			atkinfo4.open("likelihood_all_dens.txt", ios::app);
+			atkinfo4 << network_key << ", " << k << ", ";
+			atkinfo4 << pow((TOT_OBS / (long double)TOT_POS), (TOT_OBS))*pow((1 - (TOT_OBS / (long double)TOT_POS)), (TOT_POS - TOT_OBS));
+			for (int i = 0; i < k; i++)
+			{
+				atkinfo4 << "," << pow((OBS[i] / (long double)POS[i]), (OBS[i]))*pow((1 - (OBS[i] / (long double)POS[i])), (POS[i] - OBS[i]));
+			}
+			atkinfo4 << endl;
+			atkinfo4.close();
+
+			/////////////////////////////////////
+			//OUTPUT DENSITIES
+			ostringstream atkstring5;
+			ofstream atkinfo5;
+			// If old file exists from a previous run, delete it.
+			//remove("likelihood_all_logdens.txt");
+			atkstring5 << "likelihood_all_logdens" << ".txt";
+			atkinfo5.open("likelihood_all_logdens.txt", ios::app);
+			atkinfo5 << network_key << ", " << k << ", ";
+			atkinfo5 << (TOT_OBS)*log(TOT_OBS / (long double)TOT_POS) + ((long double)TOT_POS - TOT_OBS)*log(1 - (TOT_OBS / (long double)TOT_POS));
+			for (int i = 0; i < k; i++)
+			{
+				atkinfo5 << "," << (OBS[i])*log(OBS[i] / (long double)POS[i]) + (POS[i] - OBS[i])*log(1 - OBS[i] / (long double)POS[i]);
+			}
+			atkinfo5 << endl;
+			atkinfo5.close();
+
+		//calculate full loglikelihood
 		full_loglik_curr = l_0_w + l_0_b;
 
 //STEP: Calculate likelihood under null hypothesis of k=1 cluster

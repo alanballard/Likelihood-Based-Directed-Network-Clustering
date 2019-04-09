@@ -247,15 +247,15 @@ int main()
 				//int min_cluster_size = num_nodes;
 				//int max_cluster_size = 0;
 
-				for(double average_k=5; average_k<=10; average_k=average_k+2.5)//average in-degree
+				for(double average_k=5; average_k<=5; average_k=average_k+2.5)//average in-degree //average_k<=10
 				{
-					for(double tau=2; tau<=3; tau=tau+1)//minus exponent for the degree sequence
+					for(double tau=2; tau<=2; tau=tau+1)//minus exponent for the degree sequence //tau<=3
 					{
-						for(double tau2=1; tau2<=2; tau2=tau2+1)//minus exponent for the community size distribution
+						for(double tau2=1; tau2<=1; tau2=tau2+1)//minus exponent for the community size distribution //tau2<=2
 						{
-							for(double mixing_parameter=0.65; mixing_parameter<=0.95; mixing_parameter=mixing_parameter+0.05)//{0.10,0.15,0.20,0.25...,0.55,0.60} //mixing parameter
+							for(double mixing_parameter=0.65; mixing_parameter<=0.65; mixing_parameter=mixing_parameter+0.05)//{0.10,0.15,0.20,0.25...,0.55,0.60} //mixing parameter mixing_parameter<=0.95
 							{//was 0.1 to 0.6, changed to 0.65 to 0.95
-								for (int network_ct = 1; network_ct <= 10; network_ct++) //Number of networks to create at current parameter settings
+								for (int network_ct = 1; network_ct <= 1; network_ct++) //Number of networks to create at current parameter settings //network_ct <= 10
 								{	
 
 				overall_net_ct = overall_net_ct + 1;
@@ -323,14 +323,14 @@ int main()
 
 									//Range of clusters over which we evaluate each model
 									int min_k = 10;
-									int max_k = 20;
+									int max_k = 12;//20
 									int k_int = 1;
 
 									//Run all models on current network
 				cout << "\t" << "Evaluating Model: likelihood" << endl;
 									likelihood(overall_net_ct, N, links, E, InitTemp, CR, TL, Max_Success, min_k, max_k, k_int); 
-				cout << "\t" << "Evaluating Model: modularity" <<endl;
-									modularity(overall_net_ct, N, E, links, InitTemp, CR,TL, Max_Success, min_k, max_k, k_int);
+//				cout << "\t" << "Evaluating Model: modularity" <<endl;
+//									modularity(overall_net_ct, N, E, links, InitTemp, CR,TL, Max_Success, min_k, max_k, k_int);
 
 					time_t network_end = time(0);
 					double network_time = difftime(network_end, network_start);
