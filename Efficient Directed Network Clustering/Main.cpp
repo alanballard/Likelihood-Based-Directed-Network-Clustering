@@ -253,7 +253,7 @@ int main()
 					{
 						for(double tau2=1; tau2<=2; tau2=tau2+1)//minus exponent for the community size distribution //tau2<=2
 						{
-							for(double mixing_parameter=0.1; mixing_parameter<=0.9; mixing_parameter=mixing_parameter+0.05)//{0.10,0.15,0.20,0.25...,0.55,0.60} //mixing parameter mixing_parameter<=0.95
+							for(double mixing_parameter=0.1; mixing_parameter<=0.95; mixing_parameter=mixing_parameter+0.05)//{0.10,0.15,0.20,0.25...,0.55,0.60} //mixing parameter mixing_parameter<=0.95
 							{//was 0.1 to 0.6, changed to 0.65 to 0.95
 								for (int network_ct = 1; network_ct <= 10; network_ct++) //Number of networks to create at current parameter settings //network_ct <= 10
 								{	
