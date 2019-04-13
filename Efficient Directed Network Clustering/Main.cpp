@@ -99,7 +99,10 @@ int main()
 						int missing = 0;
 						for (int i = 0; i < links.size(); i++)
 						{
-							if (links[i].size() == 0) { missing = 1; }
+							if (links[i].size() == 0) {
+								missing = 1;
+								cout << "empty row at vertex " << i << endl;
+							}
 						}
 						if (missing == 1) {
 							std::cout << "WARNING WARNING WARNING" << endl;
@@ -107,7 +110,7 @@ int main()
 							std::cout << "THE PROGRAM WILL NOT WORK CORRECTLY" << endl;
 							std::cin.get();
 						}
-
+//print_el(links);
 
 						//GET STATS ON CURRENT NETWORK
 						int N = 0;
