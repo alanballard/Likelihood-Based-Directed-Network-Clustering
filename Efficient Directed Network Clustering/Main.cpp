@@ -40,10 +40,10 @@ int main()
 	srand(time(0));          //seeds random number generator
 
 	//Simulated Annealing Algorithm Parameters
-	double InitTemp = 1;	//Starting temperature
-	double CR = 0.99;		//Rate at which temperature is reduced
+	double InitTemp = 1;	//Starting temperature 1
+	double CR = 0.99;		//Rate at which temperature is reduced .99
 
-	int TL = 100;			//Maximum number of reclustering attempts at a given temperature
+	int TL = 100;			//Maximum number of reclustering attempts at a given temperature 100
 	int Max_Success = TL;	//Maximum number of successes allowed at a given temperature 
 	//The parameters below are hard-coded in the model programs
 	//double LimitIT = ; //Minimum temperature. Program stops when this number is reached
@@ -332,8 +332,8 @@ int main()
 									//Run all models on current network
 				cout << "\t" << "Evaluating Model: likelihood" << endl;
 									likelihood(overall_net_ct, N, links, E, InitTemp, CR, TL, Max_Success, min_k, max_k, k_int); 
-//				cout << "\t" << "Evaluating Model: modularity" <<endl;
-//									modularity(overall_net_ct, N, E, links, InitTemp, CR,TL, Max_Success, min_k, max_k, k_int);
+				cout << "\t" << "Evaluating Model: modularity" <<endl;
+									modularity(overall_net_ct, N, E, links, InitTemp, CR,TL, Max_Success, min_k, max_k, k_int);
 
 					time_t network_end = time(0);
 					double network_time = difftime(network_end, network_start);
