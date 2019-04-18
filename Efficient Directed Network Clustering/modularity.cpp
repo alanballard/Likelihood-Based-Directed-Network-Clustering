@@ -184,7 +184,8 @@ cout << "k=" <<k<< endl;
 								current_full_modularity =
 									current_full_modularity +
 									0//A_ij
-									- ((long double)(k_i_in[i] * k_j_out[j]) / (E));//(2 * E));
+									;
+//TEST								- ((long double)(k_i_in[i] * k_j_out[j]) / (E));//(2 * E));
 							}
 						}
 
@@ -209,20 +210,21 @@ cout << "k=" <<k<< endl;
 							full_prop_modularity =
 								full_prop_modularity +
 								get<1>(links[i][j])//A_ij
-								- ((long double)(k_i_in[i] * k_j_out[j]) / (2 * E));
+								- ((long double)(k_i_in[i] * k_j_out[j]) / (E));//(2 * E));
 						}
 						else //otherwise A_ij doesn't exist, and the edge weight element is set to zero
 						{
 							full_prop_modularity =
 								full_prop_modularity +
 								0//A_ij
-								- ((long double)(k_i_in[i] * k_j_out[j]) / (2 * E));
+								;
+//TEST							- ((long double)(k_i_in[i] * k_j_out[j]) / (E)); //(2 * E));
 						}
 					}
 
 				}
 			}
-			full_prop_modularity = full_prop_modularity / (2 * E);
+			full_prop_modularity = full_prop_modularity / (E); //(2 * E);
 
 			//Calculate change in modularity due to reclustering
 			//modularity(new)-modularity(old)
