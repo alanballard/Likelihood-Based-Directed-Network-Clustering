@@ -147,17 +147,25 @@ cout << "k=" <<k<< endl;
 
 				//Have to traverse entire adjacency list...
 				//Formula taken from "Community Structure in Directed Networks", Leicht and Newman, 2007
+				//https://arxiv.org/pdf/0906.0612.pdf
 				//(1/2m)*sum[A_ij - (k_i^in*k_j^out)/2m]
 				//A_ij		=1 if edge exists FROM j TO i	= where get<2>(links[i][j]) == 'F'
 				//k_i^in	=in degree of vertex i			=k_i_in[i]
 				//k_j^out	=out degree of vertex j			=k_j_out[j]
 				//m			=# of edges in network			=E
-				for (int i = 0; i < links.size(); i++)
+
+				for (int i = 0; i < links.size(); i++)//For every vertex i in the network...
 				{
-					for (int j = 0; j < links[i].size(); j++)
+					for (int j = 0; j < links[i].size(); j++) //consider its jth neighbor...
 					{
-						if (cluster_membership[i] == cluster_membership[get<0>(links[i][j])])
-							//i/j belong to same cluster -> this means Kronecker delta function=1
+						if (cluster_membership[i] == cluster_membership[get<0>(links[i][j])]) //If they are in the same cluster...
+							//i/j belong to same cluster -> this means Kronecker delta function=1. Otherwise, we ignore any edge that might be connecting to them.
+							//links[i][j] contains information on the jth neighbor of i. 
+							//Specifically, this information is a tuple of the form <j,weight of edge,direction of edge> 
+							//In the unweighted case, weight=1 for all edges. Direction of edge is with regard to neighbor j.
+							//Direction of edge ='T' edge extends from i to j. Otherwise, edge extends from j to i and direction of edge ='F'. 
+							//get<s>(tuple) accesses the sth element of tuple, with the first element of s starting at 0. 
+							//In this case, get<0>(links[i][j] is accessing the 1st element of the links[i][j] tuple, which is the vertex number of neighboring vertex j.
 						{
 							if (get<2>(links[i][j]) == 'F') //edge extends from j to i -> this means A_ij exists
 							{
@@ -165,20 +173,24 @@ cout << "k=" <<k<< endl;
 								current_full_modularity =
 									current_full_modularity +
 									get<1>(links[i][j])//A_ij
-									- ((long double)(k_i_in[i] * k_j_out[j]) / (2 * E));
+									- ((long double)(k_i_in[i] * k_j_out[j]) / (E));// (2 * E));
 							}
-							else
+							else 
+							//direction of edge must ='T', indicating that the edge extends from i to j. 
+							//Note that this edge will eventually be counted when we are considering the neighbors of vertex j
+							//In that case, the edge to vertex i will have a edge direction indicator 'F', i.e. extends from i to j. 
+							//and A_ji will be added to modularity in the step above.
 							{
 								current_full_modularity =
 									current_full_modularity +
 									0//A_ij
-									- ((long double)(k_i_in[i] * k_j_out[j]) / (2 * E));
+									- ((long double)(k_i_in[i] * k_j_out[j]) / (E));//(2 * E));
 							}
 						}
 
 					}
 				}
-				current_full_modularity = current_full_modularity / (2 * E);
+				current_full_modularity = current_full_modularity / (E);//(2 * E);
 
 			}//end 1st-run WHILE loop
 
