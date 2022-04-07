@@ -1,5 +1,5 @@
 # Likelihood-Based-Directed-Network-Clustering
-This code was created to support the paper "On the statistical detection of clusters in directed networks" by Alan Ballard and Marcus B. Perry. 
+This code was created to support an article-in-progress tentatively titled "On the statistical detection of clusters in directed networks". 
 
 Given a user-supplied directed network, this code will cluster it into a range of user-specified cluster numbers using a likelihood objective function proposed in the current paper and the directed modularity objective function proposed by Leicht and Newman (2008) in "Community structure in directed networks". 
 This clustering is accomplished using simulated annealing and the cluster number range, along with the simulated annealing cooling schedule, are adjustable within the code.
